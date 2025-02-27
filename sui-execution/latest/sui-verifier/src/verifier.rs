@@ -10,6 +10,7 @@ use sui_types::{error::ExecutionError, move_package::FnInfoMap};
 use crate::{
     entry_points_verifier, global_storage_access_verifier, id_leak_verifier,
     one_time_witness_verifier, private_generics, struct_with_key_verifier,
+    struct_with_singleton_verifier,
 };
 use move_bytecode_verifier_meter::dummy::DummyMeter;
 use move_bytecode_verifier_meter::Meter;
@@ -26,7 +27,8 @@ pub fn sui_verify_module_metered(
     id_leak_verifier::verify_module(module, meter)?;
     private_generics::verify_module(module, verifier_config)?;
     entry_points_verifier::verify_module(module, fn_info_map, verifier_config)?;
-    one_time_witness_verifier::verify_module(module, fn_info_map)
+    one_time_witness_verifier::verify_module(module, fn_info_map)?;
+    struct_with_singleton_verifier::verify_module(module)
 }
 
 /// Runs the Sui verifier and checks if the error counts as a Sui verifier timeout
