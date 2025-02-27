@@ -1293,6 +1293,7 @@ fn token_to_ability(token: Tok, contents: &str) -> Option<Ability> {
         (Tok::NameValue, Ability::DROP) => Some(Ability::Drop),
         (Tok::NameValue, Ability::STORE) => Some(Ability::Store),
         (Tok::NameValue, Ability::KEY) => Some(Ability::Key),
+        (Tok::NameValue, Ability::SINGLETON) => Some(Ability::Singleton),
         _ => None,
     }
 }
@@ -1302,6 +1303,7 @@ fn token_to_ability(token: Tok, contents: &str) -> Option<Ability> {
 //     "drop" => Ability::Drop,
 //     "store" => Ability::Store,
 //     "key" => Ability::Key,
+//     "singleton" => Ability::Singleton,
 // }
 fn parse_ability(tokens: &mut Lexer) -> Result<(Ability, Loc), ParseError<Loc, anyhow::Error>> {
     let a = match token_to_ability(tokens.peek(), tokens.content()) {

@@ -3081,6 +3081,7 @@ fn token_to_ability(token: Tok, content: &str) -> Option<Ability_> {
         (Tok::Identifier, Ability_::DROP) => Some(Ability_::Drop),
         (Tok::Identifier, Ability_::STORE) => Some(Ability_::Store),
         (Tok::Identifier, Ability_::KEY) => Some(Ability_::Key),
+        (Tok::Identifier, Ability_::SINGLETON) => Some(Ability_::Singleton),
         _ => None,
     }
 }
@@ -3091,6 +3092,7 @@ fn token_to_ability(token: Tok, content: &str) -> Option<Ability_> {
 //          | "drop"
 //          | "store"
 //          | "key"
+//          | "singleton"
 fn parse_ability(context: &mut Context) -> Result<Ability, Box<Diagnostic>> {
     let loc = current_token_loc(context.tokens);
     match token_to_ability(context.tokens.peek(), context.tokens.content()) {
@@ -3100,7 +3102,7 @@ fn parse_ability(context: &mut Context) -> Result<Ability, Box<Diagnostic>> {
         }
         None => {
             let msg = format!(
-                "Unexpected {}. Expected a type ability, one of: 'copy', 'drop', 'store', or 'key'",
+                "Unexpected {}. Expected a type ability, one of: 'copy', 'drop', 'store', 'key', or `singleton`",
                 current_token_error_string(context.tokens)
             );
             Err(Box::new(diag!(Syntax::UnexpectedToken, (loc, msg))))

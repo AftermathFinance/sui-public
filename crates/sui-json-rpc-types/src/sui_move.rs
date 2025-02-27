@@ -36,6 +36,7 @@ pub enum SuiMoveAbility {
     Drop,
     Store,
     Key,
+    Singleton,
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
@@ -319,6 +320,7 @@ impl From<AbilitySet> for SuiMoveAbilitySet {
                     Ability::Drop => SuiMoveAbility::Drop,
                     Ability::Key => SuiMoveAbility::Key,
                     Ability::Store => SuiMoveAbility::Store,
+                    Ability::Singleton => SuiMoveAbility::Singleton,
                 })
                 .collect::<Vec<SuiMoveAbility>>(),
         }

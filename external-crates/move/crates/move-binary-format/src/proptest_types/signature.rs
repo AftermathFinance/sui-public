@@ -18,10 +18,14 @@ pub enum AbilitySetGen {
     Copy,
     Drop,
     Store,
+    Singleton,
     CopyDrop,
     CopyStore,
     DropStore,
+    DropSingleton,
+    StoreSingleton,
     CopyDropStore,
+    DropStoreSingleton,
 }
 
 impl AbilitySetGen {
@@ -33,10 +37,14 @@ impl AbilitySetGen {
             G::Copy,
             G::Drop,
             G::Store,
+            G::Singleton,
             G::CopyDrop,
             G::CopyStore,
             G::DropStore,
+            G::DropSingleton,
+            G::StoreSingleton,
             G::CopyDropStore,
+            G::DropStoreSingleton,
         ];
 
         select(KINDS)
@@ -51,10 +59,14 @@ impl AbilitySetGen {
             G::Copy => empty | Ability::Copy,
             G::Drop => empty | Ability::Drop,
             G::Store => empty | Ability::Store,
+            G::Singleton => empty | Ability::Singleton,
             G::CopyDrop => empty | Ability::Copy | Ability::Drop,
             G::CopyStore => empty | Ability::Copy | Ability::Store,
             G::DropStore => empty | Ability::Drop | Ability::Store,
+            G::DropSingleton => empty | Ability::Drop | Ability::Singleton,
+            G::StoreSingleton => empty | Ability::Store | Ability::Singleton,
             G::CopyDropStore => empty | Ability::Copy | Ability::Drop | Ability::Store,
+            G::DropStoreSingleton => empty | Ability::Drop | Ability::Store | Ability::Singleton,
         }
     }
 }

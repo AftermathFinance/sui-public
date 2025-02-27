@@ -275,6 +275,7 @@ fn write_ability(ab: Ability) -> String {
         Ability::Drop => A_::DROP,
         Ability::Store => A_::STORE,
         Ability::Key => A_::KEY,
+        Ability::Singleton => A_::SINGLETON,
     }
     .to_string()
 }

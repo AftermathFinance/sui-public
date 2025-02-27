@@ -804,6 +804,7 @@ fn ability(sp!(_, a_): Ability) -> IR::Ability {
         A::Drop => IRA::Drop,
         A::Store => IRA::Store,
         A::Key => IRA::Key,
+        A::Singleton => IRA::Singleton,
     }
 }
 

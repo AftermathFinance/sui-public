@@ -423,6 +423,7 @@ pub enum Ability_ {
     Drop,
     Store,
     Key,
+    Singleton,
 }
 pub type Ability = Spanned<Ability_>;
 
@@ -1108,6 +1109,7 @@ impl Ability_ {
     pub const DROP: &'static str = "drop";
     pub const STORE: &'static str = "store";
     pub const KEY: &'static str = "key";
+    pub const SINGLETON: &'static str = "singleton";
 
     /// For a struct with ability `a`, each field needs to have the ability `a.requires()`.
     /// Consider a generic type Foo<t1, ..., tn>, for Foo<t1, ..., tn> to have ability `a`, Foo must
@@ -1118,6 +1120,7 @@ impl Ability_ {
             Ability_::Drop => Ability_::Drop,
             Ability_::Store => Ability_::Store,
             Ability_::Key => Ability_::Store,
+            Ability_::Singleton => Ability_::Store,
         }
     }
 
@@ -1126,8 +1129,9 @@ impl Ability_ {
         match self {
             Self::Copy => vec![Ability_::Copy],
             Self::Drop => vec![Ability_::Drop],
-            Self::Store => vec![Ability_::Store, Ability_::Key],
+            Self::Store => vec![Ability_::Store, Ability_::Key, Ability_::Singleton],
             Self::Key => vec![],
+            Self::Singleton => vec![],
         }
     }
 }
@@ -1339,6 +1343,7 @@ impl fmt::Display for Ability_ {
                 Ability_::Drop => Ability_::DROP,
                 Ability_::Store => Ability_::STORE,
                 Ability_::Key => Ability_::KEY,
+                Ability_::Singleton => Ability_::SINGLETON,
             }
         )
     }

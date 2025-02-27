@@ -130,6 +130,8 @@ pub enum Ability {
     Store,
     /// Allows the type to serve as a key for global storage operations
     Key,
+    /// Allows there to only exist one instance of the type in global storage
+    Singleton,
 }
 //**************************************************************************************************
 // Types
@@ -824,6 +826,7 @@ impl Ability {
     pub const DROP: &'static str = "drop";
     pub const STORE: &'static str = "store";
     pub const KEY: &'static str = "key";
+    pub const SINGLETON: &'static str = "singleton";
 }
 
 impl QualifiedDatatypeIdent {
@@ -1105,6 +1108,7 @@ impl fmt::Display for Ability {
                 Ability::Drop => Ability::DROP,
                 Ability::Store => Ability::STORE,
                 Ability::Key => Ability::KEY,
+                Ability::Singleton => Ability::SINGLETON,
             }
         )
     }

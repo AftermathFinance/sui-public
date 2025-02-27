@@ -688,11 +688,12 @@ impl ModuleIdent_ {
 
 impl AbilitySet {
     /// All abilities
-    pub const ALL: [Ability_; 4] = [
+    pub const ALL: [Ability_; 5] = [
         Ability_::Copy,
         Ability_::Drop,
         Ability_::Store,
         Ability_::Key,
+        Ability_::Singleton,
     ];
     /// Abilities for bool, u8, u16, u32, u64, u128, u256 and address
     pub const PRIMITIVES: [Ability_; 3] = [Ability_::Copy, Ability_::Drop, Ability_::Store];

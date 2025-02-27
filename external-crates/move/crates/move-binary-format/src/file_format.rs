@@ -667,6 +667,8 @@ pub enum Ability {
     Store = 0x4,
     /// Allows the type to serve as a key for global storage operations: MoveTo, MoveFrom, etc.
     Key = 0x8,
+    /// Enforces the type to have at most one instance in global storage
+    Singleton = 0x10,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -765,6 +767,7 @@ impl Ability {
             0x2 => Some(Ability::Drop),
             0x4 => Some(Ability::Store),
             0x8 => Some(Ability::Key),
+            0x10 => Some(Ability::Singleton),
             _ => None,
         }
     }
@@ -778,6 +781,8 @@ impl Ability {
             Self::Drop => Ability::Drop,
             Self::Store => Ability::Store,
             Self::Key => Ability::Store,
+            // Review: Does `singleton` require any abilility?
+            Self::Singleton => Ability::Store,
         }
     }
 
@@ -786,8 +791,9 @@ impl Ability {
         match self {
             Self::Copy => AbilitySet::EMPTY | Ability::Copy,
             Self::Drop => AbilitySet::EMPTY | Ability::Drop,
-            Self::Store => AbilitySet::EMPTY | Ability::Store | Ability::Key,
+            Self::Store => AbilitySet::EMPTY | Ability::Store | Ability::Key | Ability::Singleton,
             Self::Key => AbilitySet::EMPTY,
+            Self::Singleton => AbilitySet::EMPTY,
         }
     }
 }
@@ -799,6 +805,7 @@ impl Display for Ability {
             Ability::Drop => write!(f, "drop"),
             Ability::Store => write!(f, "store"),
             Ability::Key => write!(f, "key"),
+            Ability::Singleton => write!(f, "singleton"),
         }
     }
 }
@@ -828,7 +835,8 @@ impl AbilitySet {
         (Ability::Copy as u8)
             | (Ability::Drop as u8)
             | (Ability::Store as u8)
-            | (Ability::Key as u8),
+            | (Ability::Key as u8)
+            | (Ability::Singleton as u8),
     );
 
     pub fn singleton(ability: Ability) -> Self {
@@ -854,6 +862,10 @@ impl AbilitySet {
 
     pub fn has_key(self) -> bool {
         self.has_ability(Ability::Key)
+    }
+
+    pub fn has_singleton(self) -> bool {
+        self.has_ability(Ability::Singleton)
     }
 
     pub fn remove(self, ability: Ability) -> Self {
@@ -969,7 +981,7 @@ impl Iterator for AbilitySetIterator {
     type Item = Ability;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while self.idx <= 0x8 {
+        while self.idx <= 0x10 {
             let next = Ability::from_u8(self.set.0 & self.idx);
             self.idx <<= 1;
             if next.is_some() {

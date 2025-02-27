@@ -1161,7 +1161,7 @@ impl<'env> Docgen<'env> {
     // Helpers
 
     /// Collect tokens in an ability set
-    fn ability_tokens(&self, key: bool, store: bool, drop: bool, copy: bool) -> Vec<&'static str> {
+    fn ability_tokens(&self, key: bool, store: bool, drop: bool, copy: bool, singleton: bool) -> Vec<&'static str> {
         let mut ability_tokens = vec![];
         if key {
             ability_tokens.push("key");
@@ -1175,6 +1175,9 @@ impl<'env> Docgen<'env> {
         if store {
             ability_tokens.push("store");
         }
+        if singleton {
+            ability_tokens.push("singleton");
+        }
         ability_tokens
     }
 
@@ -1185,6 +1188,7 @@ impl<'env> Docgen<'env> {
             abilities.has_store(),
             abilities.has_drop(),
             abilities.has_copy(),
+            abilities.has_singleton(),
         )
     }
 
@@ -1195,6 +1199,7 @@ impl<'env> Docgen<'env> {
             ability_set.has_ability_(Ability_::Store),
             ability_set.has_ability_(Ability_::Drop),
             ability_set.has_ability_(Ability_::Copy),
+            ability_set.has_ability_(Ability_::Singleton),
         )
     }
 

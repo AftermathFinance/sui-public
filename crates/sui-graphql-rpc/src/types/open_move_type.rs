@@ -23,6 +23,8 @@ pub(crate) enum MoveAbility {
     Key,
     /// Enables values to be held inside a struct in global storage.
     Store,
+    /// Allows there to only exist one instance of the type in global storage
+    Singleton,
 }
 
 /// The visibility modifier describes which modules can access this module member.
@@ -204,6 +206,7 @@ impl From<Ability> for MoveAbility {
             A::Drop => M::Drop,
             A::Store => M::Store,
             A::Key => M::Key,
+            A::Singleton => M::Singleton,
         }
     }
 }

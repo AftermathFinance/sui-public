@@ -1654,6 +1654,7 @@ impl<'a> Disassembler<'a> {
             Ability::Drop => "drop",
             Ability::Store => "store",
             Ability::Key => "key",
+            Ability::Singleton => "singleton",
         }
         .to_string()
     }

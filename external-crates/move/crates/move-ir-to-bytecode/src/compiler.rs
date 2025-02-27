@@ -664,6 +664,7 @@ fn ability(ab: &ast::Ability) -> Ability {
         ast::Ability::Drop => Ability::Drop,
         ast::Ability::Store => Ability::Store,
         ast::Ability::Key => Ability::Key,
+        ast::Ability::Singleton => Ability::Singleton,
     }
 }
 
