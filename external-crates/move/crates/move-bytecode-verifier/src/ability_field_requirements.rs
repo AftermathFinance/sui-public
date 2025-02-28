@@ -36,7 +36,7 @@ fn verify_module_impl<'env>(
         let required_abilities = sh
             .abilities
             .into_iter()
-            .map(|a| a.requires())
+            .filter_map(|a| a.requires())
             .fold(AbilitySet::EMPTY, |acc, required| acc | required);
         // Assume type parameters have all abilities, as the struct's abilities will be dependent on
         // them

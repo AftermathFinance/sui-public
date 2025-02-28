@@ -775,14 +775,13 @@ impl Ability {
     /// For a struct with ability `a`, each field needs to have the ability `a.requires()`.
     /// Consider a generic type Foo<t1, ..., tn>, for Foo<t1, ..., tn> to have ability `a`, Foo must
     /// have been declared with `a` and each type argument ti must have the ability `a.requires()`
-    pub fn requires(self) -> Self {
+    pub fn requires(self) -> Option<Self> {
         match self {
-            Self::Copy => Ability::Copy,
-            Self::Drop => Ability::Drop,
-            Self::Store => Ability::Store,
-            Self::Key => Ability::Store,
-            // Review: Does `singleton` require any abilility?
-            Self::Singleton => Ability::Store,
+            Self::Copy => Option::Some(Ability::Copy),
+            Self::Drop => Option::Some(Ability::Drop),
+            Self::Store => Option::Some(Ability::Store),
+            Self::Key => Option::Some(Ability::Store),
+            Self::Singleton => Option::None,
         }
     }
 
@@ -962,6 +961,16 @@ impl BitOr<Ability> for AbilitySet {
     type Output = Self;
     fn bitor(self, rhs: Ability) -> Self {
         AbilitySet(self.0 | (rhs as u8))
+    }
+}
+
+impl BitOr<Option<Ability>> for AbilitySet {
+    type Output = Self;
+    fn bitor(self, rhs: Option<Ability>) -> Self {
+        match rhs {
+            Some(rhs) => AbilitySet(self.0 | (rhs as u8)),
+            None => self,
+        }
     }
 }
 
