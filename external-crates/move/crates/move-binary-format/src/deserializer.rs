@@ -356,7 +356,6 @@ fn deserialize_compiled_module(
         self_module_handle_idx,
         ..Default::default()
     };
-    println!("module: {:#?}", module);
     build_compiled_module(&mut module, &versioned_binary, &versioned_binary.tables)?;
 
     let end_pos = versioned_binary.binary_end_offset();
@@ -762,10 +761,6 @@ fn load_datatype_handles(
         let name = load_identifier_index(&mut cursor)?;
         let abilities = load_ability_set(&mut cursor, AbilitySetPosition::DatatypeHandle)?;
         let type_parameters = load_struct_type_parameters(&mut cursor)?;
-        println!("module: {:#?}", module);
-        println!("name: {:#?}", name);
-        println!("abilities: {:#?}", abilities);
-        println!("type_parameters: {:#?}", type_parameters);
         datatype_handles.push(DatatypeHandle {
             module,
             name,
