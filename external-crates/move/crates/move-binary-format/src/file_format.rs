@@ -775,13 +775,13 @@ impl Ability {
     /// For a struct with ability `a`, each field needs to have the ability `a.requires()`.
     /// Consider a generic type Foo<t1, ..., tn>, for Foo<t1, ..., tn> to have ability `a`, Foo must
     /// have been declared with `a` and each type argument ti must have the ability `a.requires()`
-    pub fn requires(self) -> Option<Self> {
+    pub fn requires(self) -> AbilitySet {
         match self {
-            Self::Copy => Option::Some(Ability::Copy),
-            Self::Drop => Option::Some(Ability::Drop),
-            Self::Store => Option::Some(Ability::Store),
-            Self::Key => Option::Some(Ability::Store),
-            Self::Singleton => Option::None,
+            Self::Copy => AbilitySet::EMPTY | Ability::Copy,
+            Self::Drop => AbilitySet::EMPTY | Ability::Drop,
+            Self::Store => AbilitySet::EMPTY | Ability::Store,
+            Self::Key => AbilitySet::EMPTY | Ability::Store,
+            Self::Singleton => AbilitySet::EMPTY,
         }
     }
 
@@ -790,7 +790,7 @@ impl Ability {
         match self {
             Self::Copy => AbilitySet::EMPTY | Ability::Copy,
             Self::Drop => AbilitySet::EMPTY | Ability::Drop,
-            Self::Store => AbilitySet::EMPTY | Ability::Store | Ability::Key | Ability::Singleton,
+            Self::Store => AbilitySet::EMPTY | Ability::Store | Ability::Key,
             Self::Key => AbilitySet::EMPTY,
             Self::Singleton => AbilitySet::EMPTY,
         }
@@ -961,16 +961,6 @@ impl BitOr<Ability> for AbilitySet {
     type Output = Self;
     fn bitor(self, rhs: Ability) -> Self {
         AbilitySet(self.0 | (rhs as u8))
-    }
-}
-
-impl BitOr<Option<Ability>> for AbilitySet {
-    type Output = Self;
-    fn bitor(self, rhs: Option<Ability>) -> Self {
-        match rhs {
-            Some(rhs) => AbilitySet(self.0 | (rhs as u8)),
-            None => self,
-        }
     }
 }
 
