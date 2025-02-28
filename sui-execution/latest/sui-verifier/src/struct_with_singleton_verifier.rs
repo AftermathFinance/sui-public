@@ -6,7 +6,7 @@
 //!
 //! # Key properties enforced:
 //! - Types with the singleton ability can only be instantiated in a module's `init` function.
-//! - For each struct with the singleton ability, at most one can be instantiated.
+//! - For each struct with the singleton ability, at most one of that type can be instantiated.
 //! - Types with the singleton ability cannot have the `copy` ability.
 
 use move_binary_format::file_format::{Bytecode, CompiledModule, StructDefinition};
@@ -17,16 +17,16 @@ use crate::{verification_failure, INIT_FN_NAME};
 
 /// Verifies that all singleton types in the module follow singleton rules
 pub fn verify_module(module: &CompiledModule) -> Result<(), ExecutionError> {
-    let singleton_types = get_singleton_types(module);
-    if singleton_types.is_empty() {
+    let singletons = get_singletons(module);
+    if singletons.is_empty() {
         return Ok(());
     }
 
-    verify_singleton_types(module, &singleton_types).map_err(verification_failure)
+    verify_singleton_constraints(module, &singletons).map_err(verification_failure)
 }
 
 /// Collects all struct types that have the singleton ability
-fn get_singleton_types(module: &CompiledModule) -> Vec<(String, StructDefinition)> {
+fn get_singletons(module: &CompiledModule) -> Vec<(String, StructDefinition)> {
     module
         .struct_defs
         .iter()
@@ -44,33 +44,33 @@ fn get_singleton_types(module: &CompiledModule) -> Vec<(String, StructDefinition
 
 /// Verifies that singleton types are only instantiated in init and at most once and do not
 /// have the `copy` ability.
-fn verify_singleton_types(
+fn verify_singleton_constraints(
     module: &CompiledModule,
-    singleton_types: &[(String, StructDefinition)],
+    singletons: &[(String, StructDefinition)],
 ) -> Result<(), String> {
     // Track Pack operations for each singleton type
     let mut pack_counts: HashMap<&str, usize> =
-        singleton_types.iter().map(|(name, _)| (name.as_str(), 0)).collect();
+        singletons.iter().map(|(name, _)| (name.as_str(), 0)).collect();
 
-    verify_no_copy_ability(module, singleton_types)?;
+    verify_no_singleton_has_the_copy_ability(module, singletons)?;
 
     for fn_def in &module.function_defs {
         let fn_handle = module.function_handle_at(fn_def.function);
         let is_init = module.identifier_at(fn_handle.name) == INIT_FN_NAME;
 
         if let Some(code) = &fn_def.code {
-            verify_function_bytecode(module, singleton_types, &mut pack_counts, code, is_init)?;
+            verify_function_bytecode(module, singletons, &mut pack_counts, code, is_init)?;
         }
     }
 
     Ok(())
 }
 
-fn verify_no_copy_ability(
+fn verify_no_singleton_has_the_copy_ability(
     module: &CompiledModule,
-    singleton_types: &[(String, StructDefinition)],
+    singleton_structs: &[(String, StructDefinition)],
 ) -> Result<(), String> {
-    singleton_types
+    singleton_structs
         .iter()
         .find(|(name, def)| module.datatype_handle_at(def.struct_handle).abilities.has_copy())
         .map_or(Ok(()), |(name, _)| {
@@ -85,7 +85,7 @@ fn verify_no_copy_ability(
 /// Verifies Pack operations for singleton types occur only in the init function and at most once
 fn verify_function_bytecode(
     module: &CompiledModule,
-    singleton_types: &[(String, StructDefinition)],
+    singletons: &[(String, StructDefinition)],
     pack_counts: &mut HashMap<&str, usize>,
     code: &move_binary_format::file_format::CodeUnit,
     is_init: bool,
@@ -95,7 +95,7 @@ fn verify_function_bytecode(
             let packed_def = module.struct_def_at(*idx);
 
             // Check each singleton type
-            for (name, def) in singleton_types {
+            for (name, def) in singletons {
                 if packed_def == def {
                     // Verify Pack location
                     if !is_init {
