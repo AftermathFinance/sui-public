@@ -643,7 +643,15 @@ impl BaseType_ {
                 AbilitySet::from_abilities(
                     declared_abilities
                         .into_iter()
-                        .filter(|ab| ty_arg_abilities.has_ability_(ab.value.requires())),
+                        .filter(|ab| {
+                            let requires = ab.value.requires();
+                            if requires.is_empty() {
+                                false
+                            } else {
+                                // requires will always be a vec of size 1
+                                ty_arg_abilities.has_ability_(requires[0])
+                            }
+                        }),
                 )
                 .unwrap()
             }

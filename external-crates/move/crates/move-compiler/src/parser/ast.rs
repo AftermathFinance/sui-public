@@ -1114,13 +1114,13 @@ impl Ability_ {
     /// For a struct with ability `a`, each field needs to have the ability `a.requires()`.
     /// Consider a generic type Foo<t1, ..., tn>, for Foo<t1, ..., tn> to have ability `a`, Foo must
     /// have been declared with `a` and each type argument ti must have the ability `a.requires()`
-    pub fn requires(self) -> Ability_ {
+    pub fn requires(self) -> Vec<Ability_> {
         match self {
-            Ability_::Copy => Ability_::Copy,
-            Ability_::Drop => Ability_::Drop,
-            Ability_::Store => Ability_::Store,
-            Ability_::Key => Ability_::Store,
-            Ability_::Singleton => Ability_::Store,
+            Ability_::Copy => vec![Ability_::Copy],
+            Ability_::Drop => vec![Ability_::Drop],
+            Ability_::Store => vec![Ability_::Store],
+            Ability_::Key => vec![Ability_::Store],
+            Ability_::Singleton => vec![],
         }
     }
 
@@ -1129,7 +1129,7 @@ impl Ability_ {
         match self {
             Self::Copy => vec![Ability_::Copy],
             Self::Drop => vec![Ability_::Drop],
-            Self::Store => vec![Ability_::Store, Ability_::Key, Ability_::Singleton],
+            Self::Store => vec![Ability_::Store, Ability_::Key],
             Self::Key => vec![],
             Self::Singleton => vec![],
         }

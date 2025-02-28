@@ -1138,10 +1138,13 @@ pub fn infer_abilities<const INFO_PASS: bool>(
                 .map(|ty| infer_abilities(context, subst, ty))
                 .collect::<Vec<_>>();
             AbilitySet::from_abilities(declared_abilities.into_iter().filter(|ab| {
-                let requirement = ab.value.requires();
-                ty_args_abilities
-                    .iter()
-                    .all(|ty_arg_abilities| ty_arg_abilities.has_ability_(requirement))
+                if let Some(requirement) = ab.value.requires().first().cloned() {
+                    ty_args_abilities
+                        .iter()
+                        .all(|ty_arg_abilities| ty_arg_abilities.has_ability_(requirement))
+                } else {
+                    true
+                }
             }))
             .unwrap()
         }
@@ -1982,7 +1985,12 @@ pub fn ability_not_satisfied_tips<'a>(
         (_, false) => (),
         // Type has the ability but a type argument causes it to fail
         (_, true) => {
-            let requirement = constraint.requires();
+            let requirement = constraint.requires()
+                .first()
+                .cloned()
+                .unwrap_or_else(|| panic!("ability_not_satisfied_tips called with {constraint} which \
+                    does not require any ablity"));
+
             let mut label_added = false;
             for (ty_arg, ty_arg_abilities) in ty_args {
                 if !ty_arg_abilities.has_ability_(requirement) {

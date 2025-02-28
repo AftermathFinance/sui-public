@@ -741,7 +741,13 @@ fn struct_def(context: &mut Context, sloc: Loc, s: &mut N::StructDefinition) {
         let loc = ty.loc;
         let subst_ty = core::subst_tparams(tparam_subst, ty.clone());
         for declared_ability in declared_abilities {
-            let required = declared_ability.value.requires();
+            let Some(required) = declared_ability.value.requires()
+                .first()
+                .cloned()
+            else {
+                continue
+            };
+
             let msg = format!(
                 "Invalid field type. The struct was declared with the ability '{}' so all fields \
                  require the ability '{}'",
@@ -815,7 +821,13 @@ fn variant_def(
         let loc = ty.loc;
         let subst_ty = core::subst_tparams(tparam_subst, ty.clone());
         for declared_ability in enum_abilities {
-            let required = declared_ability.value.requires();
+            let Some(required) = declared_ability.value.requires()
+                .first()
+                .cloned()
+            else {
+                continue
+            };
+
             let msg = format!(
                 "Invalid field type. The enum was declared with the ability '{}' so all fields \
                  require the ability '{}'",
