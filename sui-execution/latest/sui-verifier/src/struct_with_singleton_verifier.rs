@@ -5,9 +5,9 @@
 //! A singleton type can be instantiated at most once and only during the module's initialization.
 //!
 //! # Key properties enforced:
-//! - Types with the singleton ability can only be constructed in the module's init function
-//! - No other function in the module can create instances of singleton types
-//! - The init function can create at most one instance of each singleton type
+//! - Types with the singleton ability can only be instantiated in a module's `init` function.
+//! - For each struct with the singleton ability, at most one can be instantiated.
+//! - Types with the singleton ability cannot have the `copy` ability.
 
 use move_binary_format::file_format::{Bytecode, CompiledModule, StructDefinition};
 use sui_types::error::ExecutionError;
@@ -42,7 +42,8 @@ fn get_singleton_types(module: &CompiledModule) -> Vec<(String, StructDefinition
         .collect()
 }
 
-/// Verifies that singleton types are only instantiated in init and at most once
+/// Verifies that singleton types are only instantiated in init and at most once and do not
+/// have the `copy` ability.
 fn verify_singleton_types(
     module: &CompiledModule,
     singleton_types: &[(String, StructDefinition)],
@@ -50,6 +51,8 @@ fn verify_singleton_types(
     // Track Pack operations for each singleton type
     let mut pack_counts: HashMap<&str, usize> =
         singleton_types.iter().map(|(name, _)| (name.as_str(), 0)).collect();
+
+    verify_no_copy_ability(module, singleton_types)?;
 
     for fn_def in &module.function_defs {
         let fn_handle = module.function_handle_at(fn_def.function);
@@ -61,6 +64,22 @@ fn verify_singleton_types(
     }
 
     Ok(())
+}
+
+fn verify_no_copy_ability(
+    module: &CompiledModule,
+    singleton_types: &[(String, StructDefinition)],
+) -> Result<(), String> {
+    singleton_types
+        .iter()
+        .find(|(name, def)| module.datatype_handle_at(def.struct_handle).abilities.has_copy())
+        .map_or(Ok(()), |(name, _)| {
+            Err(format!(
+                "Singleton type {}::{} cannot have the copy ability",
+                module.self_id(),
+                name
+            ))
+        })
 }
 
 /// Verifies Pack operations for singleton types occur only in the init function and at most once
