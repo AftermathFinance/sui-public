@@ -72,7 +72,7 @@ fn verify_no_singleton_has_the_copy_ability(
 ) -> Result<(), String> {
     singleton_structs
         .iter()
-        .find(|(name, def)| module.datatype_handle_at(def.struct_handle).abilities.has_copy())
+        .find(|(_, def)| module.datatype_handle_at(def.struct_handle).abilities.has_copy())
         .map_or(Ok(()), |(name, _)| {
             Err(format!(
                 "Singleton type {}::{} cannot have the copy ability",
