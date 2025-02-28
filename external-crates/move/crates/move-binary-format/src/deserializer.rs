@@ -356,6 +356,7 @@ fn deserialize_compiled_module(
         self_module_handle_idx,
         ..Default::default()
     };
+
     build_compiled_module(&mut module, &versioned_binary, &versioned_binary.tables)?;
 
     let end_pos = versioned_binary.binary_end_offset();
